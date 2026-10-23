@@ -105,7 +105,7 @@ function renderHome(){
    <p>Un code de prononciation sur ta copie ? Parcours la ville, repère ce qui change dans les sons et entraîne-toi à le corriger !</p>
    <div class="hero-actions"><button class="btn yellow" data-action="jump-code">⌕ &nbsp;Entrer mon code</button><button class="btn ghost" data-action="open-code" data-code="P11">Découvrir P11 →</button></div>
   </div>
-  <div class="hero-sign" aria-hidden="true">BEATBOX CITY</div><div class="sound-ring"></div><div class="hero-characters" aria-hidden="true"><img class="boy" src="${asset('characters/poses/echo-boy-skate.png')}" alt=""><img class="girl" src="${asset('characters/poses/echo-girl-point.png')}" alt=""><img class="pet" src="${asset('characters/poses/echo-dog-hello.png')}" alt=""></div>
+  <div class="hero-sign" aria-hidden="true">BEATBOX CITY</div><div class="sound-ring"></div><div class="hero-characters" aria-hidden="true"><img class="boy" src="${asset('characters/echo-boy.png')}" alt=""><img class="girl" src="${asset('characters/poses/echo-girl-point.png')}" alt=""><img class="pet" src="${asset('characters/poses/echo-dog-hello.png')}" alt=""></div>
  </section>
  <div class="quickbar" id="quickbar"><div class="quickbar-label"><strong>🎯 Le prof t'a donné un code ?</strong><div class="hint">P01 à P32 · Accède directement au bon entraînement.</div></div>
   <label class="screenreader" for="quick-code">Saisir un code de prononciation</label><input id="quick-code" class="code-input" maxlength="3" placeholder="P11" autocomplete="off" inputmode="text"><button class="btn cyan" data-action="open-quick">C'est parti →</button>
