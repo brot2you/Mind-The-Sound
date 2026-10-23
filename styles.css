@@ -12,7 +12,7 @@
 /* Beatbox City V2.1 — individual character illustrations (no image-sliced sprites). */
 .hero-characters{width:46%;height:395px;right:0;bottom:0;display:block;overflow:visible;filter:none}
 .hero-characters img{position:absolute;display:block;max-width:none;width:auto;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 12px 10px #080c27a8)}
-.hero-characters .boy{left:-3%;bottom:-2px;width:43%;height:90%;z-index:1;transform:rotate(-4deg)}
+.hero-characters .boy{left:9%;bottom:0;width:38%;height:85%;z-index:1;transform:rotate(-1deg)}
 .hero-characters .girl{right:20%;bottom:-2px;width:52%;height:99%;z-index:2;transform:rotate(3deg);margin:0;max-width:none}
 .hero-characters .pet{right:0;bottom:0;width:36%;height:57%;z-index:3;transform:rotate(-2deg);margin:0;max-width:none}
 .lesson-hero>div{min-width:0;flex:1}
@@ -32,7 +32,7 @@
 @media(max-width:740px){
  .hero{min-height:690px}
  .hero-characters{right:0;bottom:0;width:100%;height:225px;opacity:1}
- .hero-characters .boy{left:12%;width:26%;height:91%;transform:rotate(-5deg)}
+ .hero-characters .boy{left:17%;width:24%;height:86%;transform:rotate(-1deg)}
  .hero-characters .girl{right:29%;width:35%;height:100%;transform:rotate(2deg)}
  .hero-characters .pet{right:9%;width:24%;height:62%;transform:rotate(-2deg)}
  .lesson-hero .lesson-avatar{width:100px;height:110px;max-width:28%;align-self:center}
@@ -40,4 +40,4 @@
  .journal-guide{width:82px;height:82px;margin:0}
  .coach-feedback>img{width:51px;height:51px}
 }
-@media(max-width:400px){.hero{min-height:680px}.hero-characters{height:204px}.hero-characters .boy{left:7%}.hero-characters .pet{right:4%}.lesson-hero .lesson-avatar{width:75px;height:86px}}
+@media(max-width:400px){.hero{min-height:680px}.hero-characters{height:204px}.hero-characters .boy{left:15%}.hero-characters .pet{right:4%}.lesson-hero .lesson-avatar{width:75px;height:86px}}
