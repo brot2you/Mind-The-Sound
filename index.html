@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101129">
+  <meta name="description" content="Mind the Sound! Beatbox City — 32 missions de prononciation anglaise avec découverte inductive, défis auditifs, enregistrement et codes professeur.">
+  <title>Mind the Sound! — Beatbox City V2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2">
+  <script defer src="data.js?v=2"></script>
+  <script defer src="app.js?v=2"></script>
+</head>
+<body>
+  <div class="background-glow" aria-hidden="true"></div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <button class="brand" data-action="go-home" aria-label="Mind the Sound, accueil">
+        <img src="assets/branding/logo-beatbox-city.png" alt="" width="124" height="94">
+        <span class="brand-title"><strong>BEATBOX CITY</strong><small>PRONUNCIATION ADVENTURE · V2</small></span>
+      </button>
+      <nav class="primary-nav" aria-label="Navigation principale">
+        <button data-action="go-home" id="nav-home" class="nav-link"><span aria-hidden="true">⌂</span><span>La ville</span></button>
+        <button data-action="go-journal" id="nav-journal" class="nav-link"><span aria-hidden="true">★</span><span>Mes progrès</span><small id="due-pill" hidden></small></button>
+        <button data-action="go-teacher" id="nav-teacher" class="nav-link"><span aria-hidden="true">▤</span><span>Codes prof</span></button>
+      </nav>
+    </div>
+  </header>
+  <main id="app" class="container" tabindex="-1"></main>
+  <div id="toast" role="status" aria-live="polite" class="toast"></div>
+  <footer class="site-footer container"><span>🎧 Mind the Sound! · Beatbox City · Brot2You</span><span>Les sons sont lus par la synthèse vocale de ton appareil. Les enregistrements restent sur ton appareil et ne sont pas envoyés.</span></footer>
+</body>
+</html>
