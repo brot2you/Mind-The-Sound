@@ -37,6 +37,15 @@ const badgeSpecs = [
 ];
 const stepNames=['Listen','Discover','Understand','Practise','Record'];
 const stepIcons=['listen-symbol.png','discover-rule-symbol.png','discover-rule-symbol.png','practice-symbol.png','record-symbol.png'];
+// Character direction follows the remediation task, not an arbitrary animation.
+// Each resource is an individual transparent PNG in assets/characters/.
+const crewStages=[
+ {name:'Echo',avatar:'expressions/dog-curious.png',full:'poses/echo-dog-hello.png',tip:'Écoute plusieurs fois et cherche une différence, sans regarder la règle.'},
+ {name:'Maya',avatar:'expressions/girl-thinking.png',full:'poses/echo-girl-point.png',tip:'Compare les indices et formule ton hypothèse avant de vérifier.'},
+ {name:'Jay',avatar:'expressions/boy-curious.png',full:'echo-boy.png',tip:'Observe la règle et le geste articulatoire, puis écoute encore.'},
+ {name:'Maya',avatar:'expressions/girl-encouraging.png',full:'echo-girl.png',tip:'Réécoute autant que nécessaire : ce défi entraîne ton oreille.'},
+ {name:'Jay',avatar:'expressions/boy-smiling.png',full:'echo-boy.png',tip:'Enregistre-toi si tu le souhaites, puis compare ton essai au modèle.'}
+];
 let toastTimer, recording=null, mediaStream=null, recordedURL=null, voices=[];
 let session=null;
 let store = {items:{},xp:0,recorded:{}};
@@ -96,7 +105,7 @@ function renderHome(){
    <p>Un code de prononciation sur ta copie ? Parcours la ville, repère ce qui change dans les sons et entraîne-toi à le corriger !</p>
    <div class="hero-actions"><button class="btn yellow" data-action="jump-code">⌕ &nbsp;Entrer mon code</button><button class="btn ghost" data-action="open-code" data-code="P11">Découvrir P11 →</button></div>
   </div>
-  <div class="hero-sign" aria-hidden="true">BEATBOX CITY</div><div class="sound-ring"></div><div class="hero-characters" aria-hidden="true"><img class="girl" src="${asset('characters/echo-girl.png')}" alt=""><img class="pet" src="${asset('characters/echo-pet.png')}" alt=""></div>
+  <div class="hero-sign" aria-hidden="true">BEATBOX CITY</div><div class="sound-ring"></div><div class="hero-characters" aria-hidden="true"><img class="boy" src="${asset('characters/poses/echo-boy-skate.png')}" alt=""><img class="girl" src="${asset('characters/poses/echo-girl-point.png')}" alt=""><img class="pet" src="${asset('characters/poses/echo-dog-hello.png')}" alt=""></div>
  </section>
  <div class="quickbar" id="quickbar"><div class="quickbar-label"><strong>🎯 Le prof t'a donné un code ?</strong><div class="hint">P01 à P32 · Accède directement au bon entraînement.</div></div>
   <label class="screenreader" for="quick-code">Saisir un code de prononciation</label><input id="quick-code" class="code-input" maxlength="3" placeholder="P11" autocomplete="off" inputmode="text"><button class="btn cyan" data-action="open-quick">C'est parti →</button>
@@ -121,8 +130,8 @@ function drawCodes(){
  grid.innerHTML=found.length?found.map(c=>{const d=districtData[c.cat];const r=item(c.id);return `<button class="code-card" data-action="open-code" data-code="${c.id}"><div class="topline"><span class="code-tag">${c.id}</span><span class="tag" style="color:${d.accent}">${c.level}</span></div><h3>${esc(c.name)}</h3><span class="words">${esc(c.pair.join(' / '))}</span><div class="bottomline"><small>${esc(d.title)}</small><b>${complete(c.id)?'✓ Mission terminée':'Découvrir →'}</b></div><div class="progress"><span style="width:${complete(c.id)?100:(r?.phase||0)*20}%"></span></div></button>`;}).join(''):'<div class="empty"><h3>Aucune mission trouvée</h3><p>Vérifie le code ou choisis une autre famille.</p><button class="btn cyan" data-action="reset-filters">Tout afficher</button></div>';
 }
 function lessonHeader(c){
- const d=districtData[c.cat];return `<div class="lesson-hero"><div><span class="lesson-code">${c.id} · ${c.level}</span>
- <h1>${esc(c.name)}</h1><p>${esc(d.title)} · Un parcours pour écouter, observer, comprendre, s'entraîner et comparer tes essais.</p></div><img loading="lazy" src="${asset('characters/echo-pet.png')}" alt="Mascotte Echo"></div>
+ const d=districtData[c.cat],guide=crewStages[session.step];return `<div class="lesson-hero"><div><span class="lesson-code">${c.id} · ${c.level}</span>
+ <h1>${esc(c.name)}</h1><p>${esc(d.title)} · Un parcours pour écouter, observer, comprendre, s'entraîner et comparer tes essais.</p><p class="coach-caption"><strong>${guide.name} :</strong> ${esc(guide.tip)}</p></div><img class="lesson-avatar" src="${asset('characters/'+guide.avatar)}" alt="${guide.name}, ton compagnon de mission"></div>
  <div class="stepper" aria-label="Les étapes de la mission">${stepNames.map((n,i)=>`<span class="step ${i===session.step?'active':i<session.step?'done':''}"><img src="${asset('actions/'+stepIcons[i])}" alt="">${i<session.step?'✓':i+1} <small>${n}</small></span>`).join('')}</div>`;
 }
 function soundCard(text,ipa,i,showIPA=false){return `<div class="sound-card ${i?'b':''}"><div class="letter">SON ${i?'B':'A'}</div><strong>${esc(text)}</strong><div class="ipa">${showIPA?esc(ipa):'&nbsp;'}</div>
@@ -142,7 +151,7 @@ function stepDiscover(c){
  <div class="minipairs"><button class="minipair" data-action="speak" data-text="${esc(c.pair[0])}">▶ ${esc(c.pair[0])}</button><button class="minipair" data-action="speak" data-text="${esc(c.pair[1])}">▶ ${esc(c.pair[1])}</button></div>
  <div class="speaker-note">🔎 <b>${esc(c.q)}</b></div>
  <div class="options">${c.opts.map((option,i)=>`<button class="option ${answered&&session.guess===i?(correct?'correct':'wrong'):''}" data-action="guess" data-index="${i}" ${correct?'disabled':''}><span class="option-letter">${'ABC'[i]}</span><span>${esc(option)}</span></button>`).join('')}</div>
- ${answered?`<div class="feedback ${correct?'ok':'no'}">${correct?'✔ Bien vu ! Tu as repéré un indice important. Formule maintenant ta règle avant de la découvrir.':'Pas encore. Réécoute les exemples : la réponse se trouve dans la différence que tu entends ou dans le geste articulatoire.'}</div>`:''}
+ ${answered?`<div class="feedback ${correct?'ok':'no'} coach-feedback"><img src="${asset('characters/expressions/'+(correct?'girl-happy.png':'boy-thinking.png'))}" alt=""><span>${correct?'✔ Bien vu ! Tu as repéré un indice important. Formule maintenant ta règle avant de la découvrir.':'Pas encore. Réécoute les exemples : la réponse se trouve dans la différence que tu entends ou dans le geste articulatoire.'}</span></div>`:''}
  <label for="hypothesis" class="overline" style="display:block;margin-top:16px">Mon hypothèse (facultatif)</label><textarea class="hypothesis-field" id="hypothesis" rows="2" placeholder="Je remarque que…">${esc(session.hypothesis)}</textarea><div class="stage-actions"><button class="btn ghost" data-action="previous-step">← Réécouter</button><button class="btn yellow" data-action="next-step" ${correct?'':'disabled'}>Je vérifie mon hypothèse →</button></div>`;
 }
 function stepUnderstand(c){
@@ -161,12 +170,12 @@ function stepPractise(c){
  const last=session.trial>=3;
  return `<div class="overline">Étape 4 · Practise</div><h2>${isP30?'Place l’accent au bon endroit':'Sound Detective'}</h2>
  <p>${isP30?'Dans cet exercice, choisis le mot à accentuer en fonction de l’intention du locuteur.':'Écoute le mot caché puis choisis celui que tu as entendu. Tu peux réécouter autant que nécessaire.'}</p>
- ${last?`<div class="success"><h2>3 / 3 !</h2><p>Bien joué : tu as terminé le défi ${session.score===3&&!session.wrongEver?'sans erreur':'en persévérant'}.</p><div class="stage-actions"><button class="btn ghost" data-action="previous-step">← Revoir la règle</button><button class="btn yellow" data-action="next-step">Passer au micro →</button></div></div>`:
+ ${last?`<div class="success"><img class="result-mascot" src="${asset('characters/expressions/dog-wink.png')}" alt="Echo te félicite"><h2>3 / 3 !</h2><p>Bien joué : tu as terminé le défi ${session.score===3&&!session.wrongEver?'sans erreur':'en persévérant'}.</p><div class="stage-actions"><button class="btn ghost" data-action="previous-step">← Revoir la règle</button><button class="btn yellow" data-action="next-step">Passer au micro →</button></div></div>`:
  `<div class="challenge-panel"><div class="counter">Défi ${session.trial+1} / 3</div>
  ${isP30?`<div class="speaker-note"><b>${esc(questions[session.trial])}</b><br>« I wanted the red pen. »</div>`:
  `<button class="hearbtn" data-action="hear-challenge" aria-label="Écouter le mot mystère">▶</button><p class="small-hint">Appuie sur ▶ pour entendre le mot mystère.</p>`}
  <div class="challenge-choices">${(isP30?['RED','PEN']:c.pair).map((w,i)=>`<button class="option" data-action="challenge-choice" data-index="${i}" ${!isP30&&('speechSynthesis' in window)&&!session.playedRound?'disabled':''}><span>${esc(w)}</span></button>`).join('')}</div>
- ${session.wrong?'<div class="feedback no">Essaie encore ! Réécoute et repère le détail important. La mission n’avance pas tant que tu n’as pas trouvé.</div>':''}
+ ${session.wrong?`<div class="feedback no coach-feedback"><img src="${asset('characters/expressions/boy-thinking.png')}" alt=""><span>Essaie encore ! Réécoute et repère le détail important. La mission n’avance pas tant que tu n’as pas trouvé.</span></div>`:''}
  </div><div class="stage-actions"><button class="btn ghost" data-action="previous-step">← Revoir la règle</button><span class="pill">${session.trial} / 3 réponses validées</span></div>`}
  <p class="small-hint">Ce défi vérifie ta discrimination auditive ou ta compréhension du rythme, pas automatiquement la qualité de ta propre prononciation.</p>`;
 }
@@ -181,7 +190,7 @@ function stepRecord(c){
  <div class="stage-actions"><button class="btn ghost" data-action="previous-step">← Revenir au défi</button><button class="btn yellow" data-action="finish-mission">✓ Terminer la mission</button></div>`;
 }
 function lessonSide(c){
- return `<aside class="sidebar-card"><img src="${asset('characters/echo-boy.png')}" alt="Coach musical"><h3>Ton coach sonore</h3><p>Chaque mission te fait écouter, déduire et pratiquer avant de vérifier tes progrès.</p><div class="sidebar-tip"><b>🎯 Mission ${c.id}</b><br>${esc(c.name)}<br><br>Tu peux noter ce code sur ta fiche orale.</div><button class="btn dark small" data-action="copy-link" data-code="${c.id}" style="width:100%;margin-top:16px">⛓ Copier le lien</button><button class="btn ghost small" data-action="go-home" style="width:100%;margin-top:10px">⌂ Retour à la ville</button></aside>`;
+ const guide=crewStages[session.step];return `<aside class="sidebar-card"><img src="${asset('characters/'+guide.full)}" alt="${guide.name}, personnage de Beatbox City"><h3>${guide.name}, ton coach</h3><p>${esc(guide.tip)}</p><div class="sidebar-tip"><b>🎯 Mission ${c.id}</b><br>${esc(c.name)}<br><br>Tu peux noter ce code sur ta fiche orale.</div><button class="btn dark small" data-action="copy-link" data-code="${c.id}" style="width:100%;margin-top:16px">⛓ Copier le lien</button><button class="btn ghost small" data-action="go-home" style="width:100%;margin-top:10px">⌂ Retour à la ville</button></aside>`;
 }
 function renderLesson(){
  const c=getCode(session?.id);if(!c)return;nav('');
@@ -195,7 +204,7 @@ function badgeCards(){const s=badgeStats();return badgeSpecs.map(([img,title,des
 function renderJournal(){
  nav('journal');const done=allComplete();const urgent=upcoming().sort((a,b)=>item(a.id).due.localeCompare(item(b.id).due));const later=done.filter(c=>!urgent.includes(c)).sort((a,b)=>String(item(a.id).due||'').localeCompare(String(item(b.id).due||'')));
  const reviewHTML=(c)=>`<div class="review-item"><div><strong><span style="color:var(--cyan)">${c.id}</span> ${esc(c.name)}</strong><small>${item(c.id)?.due<=dateISO()?'À revoir maintenant':'Prochaine révision : '+formatDate(item(c.id)?.due)}</small></div><button class="btn small ${item(c.id)?.due<=dateISO()?'yellow':'dark'}" data-action="open-code" data-code="${c.id}">Réviser →</button></div>`;
- app.innerHTML=`<div class="page-title"><div><div class="breadcrumb">My sound journal</div><h1>Ma progression</h1><p>La pratique régulière est plus efficace qu'un entraînement isolé. Ton carnet reste sur cet appareil.</p></div><button class="btn ghost" data-action="go-home">← Retour en ville</button></div>
+ app.innerHTML=`<div class="page-title"><div><div class="breadcrumb">My sound journal</div><h1>Ma progression</h1><p>La pratique régulière est plus efficace qu'un entraînement isolé. Ton carnet reste sur cet appareil.</p></div><img class="journal-guide" src="${asset('characters/poses/echo-dog-wink.png')}" alt="Echo avec son casque audio"><button class="btn ghost" data-action="go-home">← Retour en ville</button></div>
  ${stats()}
  <section class="panel"><div class="panel-head"><div><div class="eyebrow">Daily review</div><h2>À réviser aujourd'hui</h2></div><span class="pill">${urgent.length} code(s)</span></div>
  ${urgent.length?`<div class="journal-grid">${urgent.map(reviewHTML).join('')}</div>`:'<p>Aucun rappel pour le moment. Continue d’explorer la ville !</p>'}</section>
@@ -215,13 +224,15 @@ function drawTeacher(){const t=document.getElementById('teacher-body');if(!t)ret
 }
 function finishMission(){
  const c=getCode(session.id);if(!c)return;
+ const earnedBefore=new Set(badgeSpecs.filter(b=>b[3](badgeStats())).map(b=>b[0]));
  resetAudio();const prev=item(c.id)||{};const wasComplete=complete(c.id);const reviewN=wasComplete?(Number(prev.reviewN)||0)+1:0;
  const days=[1,3,7,14,30];const schedule=days[Math.min(reviewN,days.length-1)];
  const perfect=session.score===3&&!session.wrongEver;
  store.items[c.id]={...prev,phase:4,completed:true,reviewN,due:dateISO(schedule),perfect:Boolean(prev.perfect||perfect),lastPractised:dateISO()};
  store.xp+=wasComplete?15:60;if(session.localRecorded)store.recorded[c.id]=true;save();session.completed=true;nav('');
  const unlocked=badgeSpecs.filter(b=>b[3](badgeStats())).length;
- app.innerHTML=`<div class="stage-card success" style="margin-top:30px;max-width:810px;margin-left:auto;margin-right:auto"><div class="eyebrow">MISSION COMPLETE</div><h2>Nice work!</h2><img src="${asset('badges/01-first-steps.png')}" alt="Médaille First Steps"><h3>${c.id} · ${esc(c.name)}</h3><p>Tu as terminé ton parcours : la différence doit maintenant être réutilisée à l'oral.</p><div class="review-promo">★ <strong>+${wasComplete?15:60} XP</strong> · ${unlocked} badge(s) débloqué(s).<br>↺ Prochaine révision : <strong>${formatDate(dateISO(schedule))}</strong></div><p class="small-hint">C'est une validation d'activité, pas une note automatique de prononciation.</p>
+ const freshBadge=badgeSpecs.find(b=>!earnedBefore.has(b[0])&&b[3](badgeStats()));
+ app.innerHTML=`<div class="stage-card success" style="margin-top:30px;max-width:810px;margin-left:auto;margin-right:auto"><div class="eyebrow">MISSION COMPLETE</div><h2>Nice work!</h2><div class="finish-crew"><img class="finish-dog" src="${asset('characters/poses/echo-dog-wink.png')}" alt="Echo te félicite">${freshBadge?`<img class="new-badge" src="${asset('badges/'+freshBadge[0])}" alt="Nouveau badge ${esc(freshBadge[1])}">`:''}</div><h3>${c.id} · ${esc(c.name)}</h3><p>Tu as terminé ton parcours : la différence doit maintenant être réutilisée à l'oral.</p><div class="review-promo">★ <strong>+${wasComplete?15:60} XP</strong> · ${unlocked} badge(s) débloqué(s).<br>↺ Prochaine révision : <strong>${formatDate(dateISO(schedule))}</strong></div><p class="small-hint">C'est une validation d'activité, pas une note automatique de prononciation.</p>
  <div class="finish-actions"><button class="btn yellow" data-action="go-journal">★ Mon carnet</button><button class="btn cyan" data-action="go-home">⌂ Explorer la ville</button><button class="btn ghost" data-action="redo" data-code="${c.id}">↺ Refaire ${c.id}</button></div></div>`;
  window.scrollTo({top:0,behavior:'instant'});
 }
